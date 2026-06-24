@@ -54,7 +54,7 @@
   .key:active { background: var(--key-active); }
   .key.key-del { font-size: 18px; color: var(--sub); }
   .key.key-empty { background: transparent; cursor: default; }
-  .key.key-confirm { font-size: 16px; font-weight: 600; background: var(--accent); color: #fff; }
+  .confirm-btn { width: 100%; margin-top: 8px; padding: 16px; border: none; border-radius: 10px; background: var(--accent); color: #fff; font-size: 17px; font-weight: 600; cursor: pointer; -webkit-tap-highlight-color: transparent; }
   .result { display: none; }
   .modal-overlay {
     position: fixed; inset: 0; background: rgba(0,0,0,0.45);
@@ -99,10 +99,11 @@
     <button class="key" onclick="pressKey('1')">1</button>
     <button class="key" onclick="pressKey('2')">2</button>
     <button class="key" onclick="pressKey('3')">3</button>
-    <button class="key key-confirm" onclick="confirm()">決定</button>
+    <button class="key key-empty"></button>
     <button class="key" onclick="pressKey('0')">0</button>
     <button class="key key-del" onclick="deleteKey()">⌫</button>
   </div>
+  <button class="confirm-btn" onclick="confirm()">決定</button>
 </div>
 <div class="modal-overlay hidden" id="modal" onclick="closeModal()">
   <div id="result" onclick="event.stopPropagation()"></div>
