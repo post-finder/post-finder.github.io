@@ -145,13 +145,14 @@ function drawMap(loc) {
   const yTop6 = yBot - 14*SP;          // 44 (壁面6)
   const yTop  = yBot - 13*SP;          // 58 (壁面2,4)
   const yTop3 = yTop6 + SP/2;          // 51 (壁面3＝壁面6最上ドットと同じ高さ)
+  const G = SP/2; // コーナーの隙間
   const segLines = [
-    {x1:xEntry,      y1:yBot,  x2:xLeftWall,  y2:yBot},
-    {x1:xLeftWall,   y1:yBot,  x2:xLeftWall,  y2:yTop},
-    {x1:xLeftWall,   y1:yTop3, x2:xMidWall,   y2:yTop3},
-    {x1:xMidWall,    y1:yTop,  x2:xMidWall,   y2:yBot},
-    {x1:xMidWall,    y1:yBot,  x2:xRightWall, y2:yBot},
-    {x1:xRightWall,  y1:yBot,  x2:xRightWall, y2:yTop6},
+    {x1:xEntry,        y1:yBot,      x2:xLeftWall-G,  y2:yBot},
+    {x1:xLeftWall,     y1:yBot-G,    x2:xLeftWall,    y2:yTop},
+    {x1:xLeftWall,     y1:yTop3,     x2:xMidWall,     y2:yTop3},
+    {x1:xMidWall,      y1:yTop,      x2:xMidWall,     y2:yBot-G},
+    {x1:xMidWall+G,    y1:yBot,      x2:xRightWall-G, y2:yBot},
+    {x1:xRightWall,    y1:yBot-G,    x2:xRightWall,   y2:yTop6},
   ];
   const labelPos = [
     {x:56,  y:258},{x:74,  y:149},{x:105, y:39},
