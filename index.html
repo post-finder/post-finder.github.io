@@ -56,7 +56,6 @@
   .key:active { background: var(--key-active); }
   .key.key-del { font-size: 18px; color: var(--sub); }
   .key.key-empty { background: transparent; cursor: default; }
-  .confirm-btn { width: 100%; margin-top: 8px; padding: 20px; border: none; border-radius: 10px; background: var(--accent); color: #fff; font-size: 20px; font-weight: 600; cursor: pointer; -webkit-tap-highlight-color: transparent; }
   .result { display: none; }
   .modal-overlay {
     position: fixed; inset: 0; background: rgba(0,0,0,0.45);
@@ -120,8 +119,7 @@
       <button class="key" onclick="pressKey('0')">0</button>
       <button class="key key-del" onclick="deleteKey()">⌫</button>
     </div>
-    <button class="confirm-btn" onclick="confirm()">検索</button>
-  </div>
+    </div>
 </div>
 <div class="modal-overlay hidden" id="modal" onclick="closeModal()">
   <div id="result" onclick="event.stopPropagation()"></div>
@@ -247,15 +245,6 @@ function showToast(msg){
   document.body.appendChild(t);
   toastTimer = setTimeout(() => { t.classList.add('hide'); setTimeout(() => t.remove(), 300); }, 2000);
 }
-function confirm(){
-  const result = document.getElementById('result');
-  const modal = document.getElementById('modal');
-  if (!num) return;
-  const loc = locate(num);
-  if (!loc){ showToast('該当する部屋番号はありません'); return; }
-  result.innerHTML = drawMap(loc);
-  modal.classList.remove('hidden');
-}
 function getCandidates(prefix){
   return ALL.filter(n => String(n).startsWith(prefix));
 }
@@ -269,7 +258,9 @@ function update(){
   el.textContent=num; el.classList.remove('empty');
   modal.classList.add('hidden');
   const candidates = getCandidates(num);
-  if (candidates.length === 1){
+  if (candidates.length === 0){
+    showToast('存在しない部屋番号です');
+  } else if (candidates.length === 1){
     const loc = locate(String(candidates[0]));
     if (loc){
       document.getElementById('result').innerHTML = drawMap(loc);
