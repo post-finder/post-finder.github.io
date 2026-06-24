@@ -246,7 +246,7 @@ function confirm(){
   const modal = document.getElementById('modal');
   if (!num) return;
   const loc = locate(num);
-  if (!loc){ showToast('該当する部屋番号が見つかりません'); return; }
+  if (!loc){ showToast('該当する部屋番号はありません'); return; }
   result.innerHTML = drawMap(loc);
   modal.classList.remove('hidden');
 }
