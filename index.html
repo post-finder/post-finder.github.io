@@ -52,12 +52,24 @@
   .key:active { background: var(--key-active); }
   .key.key-del { font-size: 18px; color: var(--sub); }
   .key.key-empty { background: transparent; cursor: default; }
-  .result { min-height: 80px; }
-  .map-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 20px 16px; margin-top: 12px; }
+  .result { display: none; }
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.45);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 100; animation: fadeIn 0.15s ease; padding: 24px;
+  }
+  .modal-overlay.hidden { display: none; }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  .map-wrap {
+    background: var(--surface); border-radius: 20px;
+    padding: 24px 20px; width: 100%; max-width: 380px;
+    animation: popIn 0.15s ease;
+  }
+  @keyframes popIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
   .map-caption { text-align: center; margin-bottom: 16px; }
-  .map-caption .cap-room { display: block; font-size: 12px; color: var(--sub); margin-bottom: 1px; }
+  .map-caption .cap-room { display: block; font-size: 20px; color: var(--sub); margin-bottom: 1px; }
   .map-caption .cap-loc { display: block; font-size: 26px; font-weight: 700; color: var(--text); letter-spacing: 0.03em; }
-  .map-caption .cap-within { display: block; font-size: 14px; color: var(--sub); margin-top: 4px; }
+  .map-caption .cap-within { display: block; font-size: 18px; color: var(--sub); margin-top: 2px; }
   svg { width: 100%; height: auto; display: block; }
   .notfound { text-align: center; padding: 36px 0; color: var(--border); font-size: 14px; }
 </style>
@@ -88,7 +100,9 @@
     <button class="key" onclick="pressKey('0')">0</button>
     <button class="key key-del" onclick="deleteKey()">⌫</button>
   </div>
-  <div class="result" id="result"></div>
+</div>
+<div class="modal-overlay hidden" id="modal" onclick="closeModal()">
+  <div id="result" onclick="event.stopPropagation()"></div>
 </div>
 <script>
 const SOUTH_RANGES = {
@@ -156,7 +170,7 @@ function drawMap(loc) {
   ];
   const labelPos = [
     {x:56,  y:265},{x:94,  y:149},{x:105, y:69},
-    {x:116, y:149},{x:154, y:265},{x:196, y:142},
+    {x:116, y:149},{x:154, y:265},{x:192, y:142},
   ];
   let cells = '', faceLabels = '';
   segLines.forEach((ln, si) => {
@@ -180,10 +194,10 @@ function drawMap(loc) {
   });
   return `
   <div class="map-wrap">
-    <div class="map-caption"><span class="cap-room"><span style="color:var(--accent);font-weight:700;">${loc.n}</span> 号室のポスト</span><br><span class="cap-loc">${loc.seg.label}の${loc.row}段目</span><br><span class="cap-within">左から${loc.within}番目</span></div>
+    <div class="map-caption"><span class="cap-room"><span style="color:var(--accent);font-weight:700;">${loc.n}</span> 号室のポスト</span><br><span class="cap-loc">${loc.seg.label}</span><span class="cap-within">左から${loc.within}個目 上から${loc.row}段目</span></div>
     <svg viewBox="0 0 ${W} ${H}">
       ${faceLabels}${cells}
-      <text x="28" y="265" fill="#888" font-size="11" text-anchor="middle">入口</text>
+      <text x="18" y="275" fill="#aaa" font-size="11" font-weight="600" text-anchor="middle">入口</text>
     </svg>
   </div>`;
 }
@@ -191,20 +205,24 @@ let num = '';
 function pressKey(k){ if(num.length>=4) return; num+=k; update(); }
 function deleteKey(){ num=num.slice(0,-1); update(); }
 function clearNum(){ num=''; update(); }
+function closeModal(){
+  document.getElementById('modal').classList.add('hidden');
+}
 function update(){
   const el = document.getElementById('numDisplay');
   const result = document.getElementById('result');
+  const modal = document.getElementById('modal');
   if (num===''){
     el.textContent='—'; el.classList.add('empty');
-    result.innerHTML=''; return;
+    modal.classList.add('hidden'); return;
   }
   el.textContent=num; el.classList.remove('empty');
   const loc = locate(num);
   if (!loc){
-    result.innerHTML = '<div class="notfound">該当するポストなし</div>';
-    return;
+    modal.classList.add('hidden'); return;
   }
   result.innerHTML = drawMap(loc);
+  modal.classList.remove('hidden');
 }
 </script>
 </body>
