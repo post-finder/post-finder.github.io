@@ -1,0 +1,11 @@
+{
+  "name": "ポスト位置",
+  "short_name": "ポスト位置",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#f7f6f3",
+  "theme_color": "#f7f6f3",
+  "icons": [
+    { "src": "icon.png", "sizes": "1024x1024", "type": "image/png" }
+  ]
+}
