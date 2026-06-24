@@ -238,14 +238,19 @@ function deleteKey(){ num=num.slice(0,-1); update(); }
 function clearNum(){ num=''; update(); }
 function closeModal(){
   document.getElementById('modal').classList.add('hidden');
+  document.body.style.overflow = '';
   clearNum();
+}
+function openModal(loc){
+  document.getElementById('result').innerHTML = drawMap(loc);
+  document.getElementById('modal').classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
 }
 function confirmExact(){
   if (!num) return;
   const loc = locate(num);
   if (!loc){ showToast('該当する部屋番号はありません'); return; }
-  document.getElementById('result').innerHTML = drawMap(loc);
-  document.getElementById('modal').classList.remove('hidden');
+  openModal(loc);
 }
 let toastTimer;
 function showToast(msg){
@@ -274,10 +279,7 @@ function update(){
     showToast('該当する部屋番号はありません');
   } else if (candidates.length === 1){
     const loc = locate(String(candidates[0]));
-    if (loc){
-      document.getElementById('result').innerHTML = drawMap(loc);
-      modal.classList.remove('hidden');
-    }
+    if (loc) openModal(loc);
   }
 }
 </script>
