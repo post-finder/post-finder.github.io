@@ -77,6 +77,15 @@
   .map-caption .cap-within { display: block; font-size: 18px; color: var(--sub); margin-top: 2px; }
   svg { width: 100%; height: auto; display: block; }
   .notfound { text-align: center; padding: 36px 0; color: var(--border); font-size: 14px; }
+  .toast {
+    position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%);
+    background: rgba(30,28,26,0.88); color: #fff; font-size: 14px; font-weight: 500;
+    padding: 10px 20px; border-radius: 20px; white-space: nowrap;
+    animation: toastIn 0.2s ease; z-index: 200;
+  }
+  .toast.hide { animation: toastOut 0.3s ease forwards; }
+  @keyframes toastIn { from { opacity:0; transform: translateX(-50%) translateY(8px); } to { opacity:1; transform: translateX(-50%) translateY(0); } }
+  @keyframes toastOut { to { opacity:0; transform: translateX(-50%) translateY(8px); } }
 </style>
 </head>
 <body>
@@ -222,12 +231,22 @@ function closeModal(){
   document.getElementById('modal').classList.add('hidden');
   clearNum();
 }
+let toastTimer;
+function showToast(msg){
+  const old = document.querySelector('.toast');
+  if (old) old.remove();
+  clearTimeout(toastTimer);
+  const t = document.createElement('div');
+  t.className = 'toast'; t.textContent = msg;
+  document.body.appendChild(t);
+  toastTimer = setTimeout(() => { t.classList.add('hide'); setTimeout(() => t.remove(), 300); }, 2000);
+}
 function confirm(){
   const result = document.getElementById('result');
   const modal = document.getElementById('modal');
   if (!num) return;
   const loc = locate(num);
-  if (!loc){ modal.classList.add('hidden'); return; }
+  if (!loc){ showToast('該当する部屋番号が見つかりません'); return; }
   result.innerHTML = drawMap(loc);
   modal.classList.remove('hidden');
 }
