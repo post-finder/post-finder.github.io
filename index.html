@@ -75,6 +75,7 @@
   .map-caption .cap-loc { display: block; font-size: 26px; font-weight: 700; color: var(--text); letter-spacing: 0.03em; }
   .map-caption .cap-within { display: block; font-size: 18px; color: var(--sub); margin-top: 2px; }
   svg { width: 100%; height: auto; display: block; overflow: visible; }
+  .confirm-btn { width: 100%; margin-top: 8px; padding: 20px; border: none; border-radius: 10px; background: var(--accent); color: #fff; font-size: 20px; font-weight: 600; cursor: pointer; -webkit-tap-highlight-color: transparent; }
   .notfound { text-align: center; padding: 36px 0; color: var(--border); font-size: 14px; }
   .toast {
     position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%);
@@ -119,6 +120,7 @@
       <button class="key" onclick="pressKey('0')">0</button>
       <button class="key key-del" onclick="deleteKey()">⌫</button>
     </div>
+    <button class="confirm-btn" onclick="confirmExact()">検索</button>
     </div>
 </div>
 <div class="modal-overlay hidden" id="modal" onclick="closeModal()">
@@ -234,6 +236,13 @@ function clearNum(){ num=''; update(); }
 function closeModal(){
   document.getElementById('modal').classList.add('hidden');
   clearNum();
+}
+function confirmExact(){
+  if (!num) return;
+  const loc = locate(num);
+  if (!loc){ showToast('該当する部屋番号はありません'); return; }
+  document.getElementById('result').innerHTML = drawMap(loc);
+  document.getElementById('modal').classList.remove('hidden');
 }
 let toastTimer;
 function showToast(msg){
