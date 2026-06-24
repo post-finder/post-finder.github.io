@@ -213,6 +213,7 @@ function deleteKey(){ num=num.slice(0,-1); update(); }
 function clearNum(){ num=''; update(); }
 function closeModal(){
   document.getElementById('modal').classList.add('hidden');
+  clearNum();
 }
 function confirm(){
   const result = document.getElementById('result');
