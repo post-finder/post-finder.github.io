@@ -230,7 +230,7 @@ function drawMap(loc) {
   </div>`;
 }
 let num = '';
-function pressKey(k){ if(num.length>=4) return; num+=k; update(); }
+function pressKey(k){ if(num.length>=4) return; if(num.length>0 && getCandidates(num).length===0) return; num+=k; update(); }
 function deleteKey(){ num=num.slice(0,-1); update(); }
 function clearNum(){ num=''; update(); }
 function closeModal(){
