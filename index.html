@@ -259,7 +259,7 @@ function update(){
   modal.classList.add('hidden');
   const candidates = getCandidates(num);
   if (candidates.length === 0){
-    showToast('存在しない部屋番号です');
+    showToast('該当する部屋番号はありません');
   } else if (candidates.length === 1){
     const loc = locate(String(candidates[0]));
     if (loc){
