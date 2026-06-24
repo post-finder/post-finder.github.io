@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>インザパーク ポスト位置</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #f7f6f3; --surface: #ffffff; --border: #e0ddd7; --text: #1a1917;
+    --sub: #8a8780; --key-bg: #eceae5; --key-active: #d4d1ca; --accent: #c8a97a;
+    --pink: #c9426b; --yellow: #d4a72c; --dim: #2a2a2a;
+  }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+    background: var(--bg); min-height: 100dvh; display: flex; flex-direction: column;
+    align-items: center; color: var(--text);
+  }
+  header {
+    width: 100%; padding: 16px 20px 12px; background: var(--surface);
+    border-bottom: 1px solid var(--border); text-align: center;
+  }
+  header h1 { font-size: 15px; font-weight: 600; letter-spacing: 0.04em; color: var(--sub); }
+  .main {
+    width: 100%; max-width: 420px; padding: 20px 16px; flex: 1;
+    display: flex; flex-direction: column; gap: 18px;
+  }
+  .section-label {
+    font-size: 11px; font-weight: 600; letter-spacing: 0.08em; color: var(--sub);
+    text-transform: uppercase; display: block; margin-bottom: 8px;
+  }
+  .number-display {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+    padding: 18px 20px; display: flex; align-items: center; justify-content: space-between;
+    min-height: 68px;
+  }
+  .number-value {
+    font-size: 36px; font-weight: 300; letter-spacing: 0.06em; color: var(--text);
+    font-variant-numeric: tabular-nums; min-width: 120px;
+  }
+  .number-value.empty { color: var(--border); }
+  .clear-btn {
+    background: none; border: none; color: var(--sub); font-size: 22px;
+    cursor: pointer; padding: 4px 8px; opacity: 0.6;
+  }
+  .keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .key {
+    background: var(--key-bg); border: none; border-radius: 10px; height: 56px;
+    font-size: 22px; color: var(--text); cursor: pointer; transition: background 0.1s;
+    -webkit-tap-highlight-color: transparent; display: flex; align-items: center; justify-content: center;
+  }
+  .key:active { background: var(--key-active); }
+  .key.key-del { font-size: 18px; color: var(--sub); }
+  .key.key-empty { background: transparent; cursor: default; }
+  .result { min-height: 80px; }
+  .map-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 20px 16px; margin-top: 12px; }
+  .map-caption { text-align: center; margin-bottom: 16px; }
+  .map-caption .cap-room { display: block; font-size: 12px; color: var(--sub); margin-bottom: 1px; }
+  .map-caption .cap-loc { display: block; font-size: 26px; font-weight: 700; color: var(--text); letter-spacing: 0.03em; }
+  .map-caption .cap-within { display: block; font-size: 14px; color: var(--sub); margin-top: 4px; }
+  svg { width: 100%; height: auto; display: block; }
+  .notfound { text-align: center; padding: 36px 0; color: var(--border); font-size: 14px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>IN THE PARK 荻窪 — ポスト位置</h1>
+</header>
+<div class="main">
+  <div>
+    <span class="section-label">部屋番号</span>
+    <div class="number-display">
+      <span class="number-value empty" id="numDisplay">—</span>
+      <button class="clear-btn" onclick="clearNum()">✕</button>
+    </div>
+  </div>
+  <div class="keypad">
+    <button class="key" onclick="pressKey('7')">7</button>
+    <button class="key" onclick="pressKey('8')">8</button>
+    <button class="key" onclick="pressKey('9')">9</button>
+    <button class="key" onclick="pressKey('4')">4</button>
+    <button class="key" onclick="pressKey('5')">5</button>
+    <button class="key" onclick="pressKey('6')">6</button>
+    <button class="key" onclick="pressKey('1')">1</button>
+    <button class="key" onclick="pressKey('2')">2</button>
+    <button class="key" onclick="pressKey('3')">3</button>
+    <button class="key key-empty"></button>
+    <button class="key" onclick="pressKey('0')">0</button>
+    <button class="key key-del" onclick="deleteKey()">⌫</button>
+  </div>
+  <div class="result" id="result"></div>
+</div>
+<script>
+const SOUTH_RANGES = {
+  14:[1401,1408],13:[1301,1309],12:[1201,1210],11:[1101,1110],
+  10:[1001,1012],9:[901,913],8:[801,814],7:[701,716],
+  6:[601,617],5:[501,517],4:[401,417],3:[301,317],2:[201,217],1:[101,117]
+};
+const SEASON_RANGES = {
+  12:[1211,1220],11:[1111,1120],10:[1013,1022],9:[914,925],
+  8:[815,827],7:[717,731],6:[618,633],5:[518,534],
+  4:[418,435],3:[318,333],2:[218,233],1:[118,123]
+};
+function buildAll() {
+  const n = [];
+  for (const [a,b] of Object.values(SOUTH_RANGES)) for (let i=a;i<=b;i++) n.push(i);
+  for (const [a,b] of Object.values(SEASON_RANGES)) for (let i=a;i<=b;i++) n.push(i);
+  n.sort((x,y)=>y-x);
+  return n;
+}
+const ALL = buildAll();
+const COLS = 51;
+const OFFSET = 4;
+const SEGS = [
+  {face:'yellow', n:4,  label:'壁面1'},
+  {face:'pink',   n:13, label:'壁面2'},
+  {face:'yellow', n:4,  label:'壁面3'},
+  {face:'pink',   n:13, label:'壁面4'},
+  {face:'yellow', n:4,  label:'壁面5'},
+  {face:'pink',   n:13, label:'壁面6'},
+];
+function locate(numStr) {
+  const n = parseInt(numStr,10);
+  if (isNaN(n)) return null;
+  const idx = ALL.indexOf(n);
+  if (idx < 0) return null;
+  const slot = idx + OFFSET;
+  const row = Math.floor(slot/COLS)+1;
+  const col = (slot%COLS)+1;
+  let acc=0, segIdx=-1, within=0;
+  for (let i=0;i<SEGS.length;i++){
+    if (col <= acc+SEGS[i].n){ segIdx=i; within=col-acc; break; }
+    acc+=SEGS[i].n;
+  }
+  return { n, row, col, segIdx, within, seg: SEGS[segIdx] };
+}
+function drawMap(loc) {
+  const W = 270, H = 300;
+  const xLeftWall = 95, xMidWall = 155, xRightWall = 215;
+  const yTop = 60, yBot = 250, yValley = 250;
+  const segLines = [
+    {x1:35, y1:yBot, x2:xLeftWall, y2:yBot},
+    {x1:xLeftWall, y1:yBot, x2:xLeftWall, y2:yTop},
+    {x1:xLeftWall, y1:yTop, x2:xMidWall, y2:yTop},
+    {x1:xMidWall, y1:yTop, x2:xMidWall, y2:yValley},
+    {x1:xMidWall, y1:yValley, x2:xRightWall, y2:yValley},
+    {x1:xRightWall, y1:yValley, x2:xRightWall, y2:yTop},
+  ];
+  const labelPos = [
+    {x:65,  y:272},{x:111, y:159},{x:125, y:78},
+    {x:139, y:159},{x:185, y:272},{x:231, y:159},
+  ];
+  let cells = '', faceLabels = '';
+  segLines.forEach((ln, si) => {
+    const seg = SEGS[si];
+    const cnt = seg.n;
+    const isHitFace = (loc.segIdx === si);
+    const lp = labelPos[si];
+    faceLabels += `<text x="${lp.x}" y="${lp.y}" fill="${isHitFace ? '#c8a97a' : '#aaa'}" font-size="13" font-weight="${isHitFace ? '700' : '400'}" text-anchor="middle">${si+1}</text>`;
+    for (let k=1; k<=cnt; k++){
+      const t = (k-0.5)/cnt;
+      const cx = ln.x1 + (ln.x2-ln.x1)*t;
+      const cy = ln.y1 + (ln.y2-ln.y1)*t;
+      const isHit = (loc.segIdx===si && loc.within===k);
+      if (isHit){
+        cells += `<circle cx="${cx}" cy="${cy}" r="6" fill="#c8a97a"><animate attributeName="r" values="6;9;6" dur="1.2s" repeatCount="indefinite"/></circle>`;
+        cells += `<circle cx="${cx}" cy="${cy}" r="6" fill="none" stroke="#c8a97a" stroke-width="2"><animate attributeName="r" values="6;22" dur="1.2s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.7;0" dur="1.2s" repeatCount="indefinite"/></circle>`;
+      } else {
+        cells += `<circle cx="${cx}" cy="${cy}" r="3.5" fill="#d6cfc2"/>`;
+      }
+    }
+  });
+  return `
+  <div class="map-wrap">
+    <div class="map-caption"><span class="cap-room"><span style="color:var(--accent);font-weight:700;">${loc.n}</span> 号室のポスト</span><br><span class="cap-loc">${loc.seg.label}の${loc.row}段目</span><br><span class="cap-within">${[1,3,5].includes(loc.segIdx) ? '上' : '左'}から${loc.within}番目</span></div>
+    <svg viewBox="0 0 ${W} ${H}">
+      ${faceLabels}${cells}
+      <text x="35" y="278" fill="#888" font-size="11" text-anchor="middle">入口</text>
+    </svg>
+  </div>`;
+}
+let num = '';
+function pressKey(k){ if(num.length>=4) return; num+=k; update(); }
+function deleteKey(){ num=num.slice(0,-1); update(); }
+function clearNum(){ num=''; update(); }
+function update(){
+  const el = document.getElementById('numDisplay');
+  const result = document.getElementById('result');
+  if (num===''){
+    el.textContent='—'; el.classList.add('empty');
+    result.innerHTML=''; return;
+  }
+  el.textContent=num; el.classList.remove('empty');
+  const loc = locate(num);
+  if (!loc){
+    result.innerHTML = '<div class="notfound">該当するポストなし</div>';
+    return;
+  }
+  result.innerHTML = drawMap(loc);
+}
+</script>
+</body>
+</html>
