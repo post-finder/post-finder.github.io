@@ -135,7 +135,7 @@ function locate(numStr) {
   return { n, row, col, segIdx, within, seg: SEGS[segIdx] };
 }
 function drawMap(loc) {
-  const W = 220, H = 280;
+  const W = 220, H = 290;
   // 各セグメントのピクセル長 = ドット数 × 14px で等間隔
   const SP = 14;
   const xEntry = 28, yBot = 240;
@@ -144,19 +144,19 @@ function drawMap(loc) {
   const xRightWall= xMidWall  + 4*SP; // 182
   const yTop6 = yBot - 14*SP;          // 44 (壁面6)
   const yTop  = yBot - 13*SP;          // 58 (壁面2,4)
-  const yTop3 = yTop6 + SP/2;          // 51 (壁面3＝壁面6最上ドットと同じ高さ)
-  const G = SP/2; // コーナーの隙間
+  const yTop3  = yTop6 + SP/2;          // 51 (壁面3)
+  const yBot_h = yBot  + SP/2;          // 247 (壁面1,5：縦セグとSP離れる)
   const segLines = [
-    {x1:xEntry,        y1:yBot,      x2:xLeftWall-G,  y2:yBot},
-    {x1:xLeftWall,     y1:yBot-G,    x2:xLeftWall,    y2:yTop},
-    {x1:xLeftWall,     y1:yTop3,     x2:xMidWall,     y2:yTop3},
-    {x1:xMidWall,      y1:yTop,      x2:xMidWall,     y2:yBot-G},
-    {x1:xMidWall+G,    y1:yBot,      x2:xRightWall-G, y2:yBot},
-    {x1:xRightWall,    y1:yBot-G,    x2:xRightWall,   y2:yTop6},
+    {x1:xEntry,      y1:yBot_h, x2:xLeftWall,  y2:yBot_h},
+    {x1:xLeftWall,   y1:yBot,   x2:xLeftWall,  y2:yTop},
+    {x1:xLeftWall,   y1:yTop3,  x2:xMidWall,   y2:yTop3},
+    {x1:xMidWall,    y1:yTop,   x2:xMidWall,   y2:yBot},
+    {x1:xMidWall,    y1:yBot_h, x2:xRightWall, y2:yBot_h},
+    {x1:xRightWall,  y1:yBot,   x2:xRightWall, y2:yTop6},
   ];
   const labelPos = [
-    {x:56,  y:258},{x:74,  y:149},{x:105, y:39},
-    {x:116, y:149},{x:154, y:258},{x:196, y:142},
+    {x:56,  y:265},{x:94,  y:149},{x:105, y:69},
+    {x:116, y:149},{x:154, y:265},{x:196, y:142},
   ];
   let cells = '', faceLabels = '';
   segLines.forEach((ln, si) => {
@@ -183,7 +183,7 @@ function drawMap(loc) {
     <div class="map-caption"><span class="cap-room"><span style="color:var(--accent);font-weight:700;">${loc.n}</span> 号室のポスト</span><br><span class="cap-loc">${loc.seg.label}の${loc.row}段目</span><br><span class="cap-within">左から${loc.within}番目</span></div>
     <svg viewBox="0 0 ${W} ${H}">
       ${faceLabels}${cells}
-      <text x="28" y="258" fill="#888" font-size="11" text-anchor="middle">入口</text>
+      <text x="28" y="265" fill="#888" font-size="11" text-anchor="middle">入口</text>
     </svg>
   </div>`;
 }
