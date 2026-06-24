@@ -54,6 +54,7 @@
   .key:active { background: var(--key-active); }
   .key.key-del { font-size: 18px; color: var(--sub); }
   .key.key-empty { background: transparent; cursor: default; }
+  .key.key-confirm { font-size: 16px; font-weight: 600; background: var(--accent); color: #fff; }
   .result { display: none; }
   .modal-overlay {
     position: fixed; inset: 0; background: rgba(0,0,0,0.45);
@@ -98,7 +99,7 @@
     <button class="key" onclick="pressKey('1')">1</button>
     <button class="key" onclick="pressKey('2')">2</button>
     <button class="key" onclick="pressKey('3')">3</button>
-    <button class="key key-empty"></button>
+    <button class="key key-confirm" onclick="confirm()">決定</button>
     <button class="key" onclick="pressKey('0')">0</button>
     <button class="key key-del" onclick="deleteKey()">⌫</button>
   </div>
@@ -210,21 +211,24 @@ function clearNum(){ num=''; update(); }
 function closeModal(){
   document.getElementById('modal').classList.add('hidden');
 }
+function confirm(){
+  const result = document.getElementById('result');
+  const modal = document.getElementById('modal');
+  if (!num) return;
+  const loc = locate(num);
+  if (!loc){ modal.classList.add('hidden'); return; }
+  result.innerHTML = drawMap(loc);
+  modal.classList.remove('hidden');
+}
 function update(){
   const el = document.getElementById('numDisplay');
-  const result = document.getElementById('result');
   const modal = document.getElementById('modal');
   if (num===''){
     el.textContent='—'; el.classList.add('empty');
     modal.classList.add('hidden'); return;
   }
   el.textContent=num; el.classList.remove('empty');
-  const loc = locate(num);
-  if (!loc){
-    modal.classList.add('hidden'); return;
-  }
-  result.innerHTML = drawMap(loc);
-  modal.classList.remove('hidden');
+  modal.classList.add('hidden');
 }
 </script>
 </body>
