@@ -233,9 +233,22 @@ function drawMap(loc) {
   </div>`;
 }
 let num = '';
-function pressKey(k){ if(num.length>=4) return; if(num.length>0 && getCandidates(num).length===0) return; num+=k; update(); }
-function deleteKey(){ num=num.slice(0,-1); update(); }
-function clearNum(){ num=''; update(); }
+function pressKey(k){
+  if(num.length>=4) return;
+  // すでに候補0なら、これ以上桁を伸ばさせない（888対策）。トーストも出し直さない。
+  if(num.length>0 && getCandidates(num).length===0) return;
+  num+=k; update();
+}
+function deleteKey(){
+  num=num.slice(0,-1);
+  hideToast();   // バックスペースでトースト即消し
+  update();
+}
+function clearNum(){
+  num='';
+  hideToast();   // クリアでもトースト即消し
+  update();
+}
 function closeModal(){
   document.getElementById('modal').classList.add('hidden');
   document.body.style.overflow = '';
@@ -262,24 +275,36 @@ function showToast(msg){
   document.body.appendChild(t);
   toastTimer = setTimeout(() => { t.classList.add('hide'); setTimeout(() => t.remove(), 300); }, 2000);
 }
+function hideToast(){
+  clearTimeout(toastTimer);
+  const t = document.querySelector('.toast');
+  if (t){ t.classList.add('hide'); setTimeout(() => { if (t.parentNode) t.remove(); }, 300); }
+}
 function getCandidates(prefix){
   return ALL.filter(n => String(n).startsWith(prefix));
 }
+let lastWasZero = false;   // 直前の入力で候補0だったか（トーストの二重発火防止）
 function update(){
   const el = document.getElementById('numDisplay');
   const modal = document.getElementById('modal');
   if (num===''){
     el.textContent='—'; el.classList.add('empty');
-    modal.classList.add('hidden'); return;
+    modal.classList.add('hidden');
+    lastWasZero = false;
+    return;
   }
   el.textContent=num; el.classList.remove('empty');
   modal.classList.add('hidden');
   const candidates = getCandidates(num);
   if (candidates.length === 0){
-    showToast('該当する部屋番号はありません');
-  } else if (candidates.length === 1){
-    const loc = locate(String(candidates[0]));
-    if (loc) openModal(loc);
+    if (!lastWasZero) showToast('該当する部屋番号はありません'); // 0になった瞬間だけ
+    lastWasZero = true;
+  } else {
+    lastWasZero = false;
+    if (candidates.length === 1){
+      const loc = locate(String(candidates[0]));
+      if (loc) openModal(loc);
+    }
   }
 }
 </script>
