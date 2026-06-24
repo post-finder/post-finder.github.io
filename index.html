@@ -54,7 +54,7 @@
   .key:active { background: var(--key-active); }
   .key.key-del { font-size: 18px; color: var(--sub); }
   .key.key-empty { background: transparent; cursor: default; }
-  .confirm-btn { width: 100%; margin-top: 8px; padding: 16px; border: none; border-radius: 10px; background: var(--accent); color: #fff; font-size: 17px; font-weight: 600; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+  .confirm-btn { width: 100%; margin-top: 8px; padding: 20px; border: none; border-radius: 10px; background: var(--accent); color: #fff; font-size: 20px; font-weight: 600; cursor: pointer; -webkit-tap-highlight-color: transparent; }
   .result { display: none; }
   .modal-overlay {
     position: fixed; inset: 0; background: rgba(0,0,0,0.45);
@@ -89,21 +89,23 @@
       <button class="clear-btn" onclick="clearNum()">✕</button>
     </div>
   </div>
-  <div class="keypad">
-    <button class="key" onclick="pressKey('7')">7</button>
-    <button class="key" onclick="pressKey('8')">8</button>
-    <button class="key" onclick="pressKey('9')">9</button>
-    <button class="key" onclick="pressKey('4')">4</button>
-    <button class="key" onclick="pressKey('5')">5</button>
-    <button class="key" onclick="pressKey('6')">6</button>
-    <button class="key" onclick="pressKey('1')">1</button>
-    <button class="key" onclick="pressKey('2')">2</button>
-    <button class="key" onclick="pressKey('3')">3</button>
-    <button class="key key-empty"></button>
-    <button class="key" onclick="pressKey('0')">0</button>
-    <button class="key key-del" onclick="deleteKey()">⌫</button>
+  <div style="display:flex;flex-direction:column;gap:8px;">
+    <div class="keypad">
+      <button class="key" onclick="pressKey('7')">7</button>
+      <button class="key" onclick="pressKey('8')">8</button>
+      <button class="key" onclick="pressKey('9')">9</button>
+      <button class="key" onclick="pressKey('4')">4</button>
+      <button class="key" onclick="pressKey('5')">5</button>
+      <button class="key" onclick="pressKey('6')">6</button>
+      <button class="key" onclick="pressKey('1')">1</button>
+      <button class="key" onclick="pressKey('2')">2</button>
+      <button class="key" onclick="pressKey('3')">3</button>
+      <button class="key key-empty"></button>
+      <button class="key" onclick="pressKey('0')">0</button>
+      <button class="key key-del" onclick="deleteKey()">⌫</button>
+    </div>
+    <button class="confirm-btn" onclick="confirm()">決定</button>
   </div>
-  <button class="confirm-btn" onclick="confirm()">決定</button>
 </div>
 <div class="modal-overlay hidden" id="modal" onclick="closeModal()">
   <div id="result" onclick="event.stopPropagation()"></div>
