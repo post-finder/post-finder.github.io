@@ -172,7 +172,7 @@ function drawMap(loc) {
   });
   return `
   <div class="map-wrap">
-    <div class="map-caption"><span class="cap-room"><span style="color:var(--accent);font-weight:700;">${loc.n}</span> 号室のポスト</span><br><span class="cap-loc">${loc.seg.label}の${loc.row}段目</span><br><span class="cap-within">${[1,3,5].includes(loc.segIdx) ? '上' : '左'}から${loc.within}番目</span></div>
+    <div class="map-caption"><span class="cap-room"><span style="color:var(--accent);font-weight:700;">${loc.n}</span> 号室のポスト</span><br><span class="cap-loc">${loc.seg.label}の${loc.row}段目</span><br><span class="cap-within">左から${loc.within}番目</span></div>
     <svg viewBox="0 0 ${W} ${H}">
       ${faceLabels}${cells}
       <text x="35" y="278" fill="#888" font-size="11" text-anchor="middle">入口</text>
