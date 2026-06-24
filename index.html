@@ -201,7 +201,7 @@ function drawMap(loc) {
         cells += `<circle cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="6" fill="#c8a97a"><animate attributeName="r" values="6;9;6" dur="1.2s" repeatCount="indefinite"/></circle>`;
         cells += `<circle cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="6" fill="none" stroke="#c8a97a" stroke-width="2"><animate attributeName="r" values="6;22" dur="1.2s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.7;0" dur="1.2s" repeatCount="indefinite"/></circle>`;
       } else {
-        cells += `<circle cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="3.5" fill="#d6cfc2"/>`;
+        cells += `<circle cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="3.5" fill="${isHitFace ? '#c8a97a' : '#d6cfc2'}"/>`;
       }
     }
   });
