@@ -199,7 +199,7 @@ function drawMap(loc) {
     const cnt = seg.n;
     const isHitFace = (loc.segIdx === si);
     const lp = labelPos[si];
-    faceLabels += `<text x="${lp.x}" y="${lp.y}" fill="${isHitFace ? '#c8a97a' : '#aaa'}" font-size="13" font-weight="${isHitFace ? '700' : '400'}" text-anchor="middle">${si+1}</text>`;
+    faceLabels += `<text x="${lp.x}" y="${lp.y}" fill="${isHitFace ? '#c8a97a' : '#aaa'}" font-size="13" font-weight="700" text-anchor="middle">${si+1}</text>`;
     for (let k=1; k<=cnt; k++){
       const t = (k-0.5)/cnt;
       const cx = ln.x1 + (ln.x2-ln.x1)*t;
