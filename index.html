@@ -22,14 +22,26 @@
     align-items: center; color: var(--text);
   }
   header {
-    width: 100%; padding: 16px 20px 12px; background: var(--surface);
-    border-bottom: 1px solid var(--border); text-align: center;
+    width: 100%; background: var(--surface);
+    border-bottom: 1px solid var(--border);
   }
+  .header-top { padding: 16px 20px 12px; text-align: center; }
   header h1 { font-size: 15px; font-weight: 600; letter-spacing: 0.04em; color: var(--sub); }
+  .tabs { display: flex; border-top: 1px solid var(--border); }
+  .tab-btn {
+    flex: 1; padding: 12px; border: none; background: transparent;
+    font-size: 14px; font-weight: 500; color: var(--sub); cursor: pointer;
+    border-bottom: 2px solid transparent; transition: all 0.15s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .tab-btn.active { color: var(--text); border-bottom-color: var(--accent); }
   .main {
     width: 100%; max-width: 420px; padding: 20px 16px 40px; flex: 1;
     display: flex; flex-direction: column; justify-content: center; gap: 28px;
   }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: flex; flex-direction: column; gap: 28px; flex: 1; justify-content: center; }
+  #panel-history.active { justify-content: flex-start; }
   .section-label {
     font-size: 14px; font-weight: 600; letter-spacing: 0.04em; color: var(--sub);
     display: block; margin-bottom: 8px;
@@ -59,7 +71,6 @@
   .key:active { background: var(--key-active); }
   .key.key-del { font-size: 18px; color: var(--sub); }
   .key.key-empty { background: transparent; cursor: default; }
-  .result { display: none; }
   .modal-overlay {
     position: fixed; inset: 0; background: rgba(0,0,0,0.45);
     display: flex; align-items: center; justify-content: center;
@@ -78,8 +89,8 @@
   .map-caption .cap-loc { display: block; font-size: 26px; font-weight: 700; color: var(--text); letter-spacing: 0.03em; }
   .map-caption .cap-within { display: block; font-size: 18px; color: var(--sub); margin-top: 2px; }
   svg { width: 100%; height: auto; display: block; overflow: visible; }
-  .confirm-btn { width: 100%; margin-top: 8px; padding: 20px; border: none; border-radius: 10px; background: var(--accent); color: #fff; font-size: 20px; font-weight: 600; cursor: pointer; -webkit-tap-highlight-color: transparent; }
   .notfound { text-align: center; padding: 36px 0; color: var(--border); font-size: 14px; }
+  .confirm-btn { width: 100%; margin-top: 8px; padding: 20px; border: none; border-radius: 10px; background: var(--accent); color: #fff; font-size: 20px; font-weight: 600; cursor: pointer; -webkit-tap-highlight-color: transparent; }
   .toast {
     position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%);
     background: rgba(30,28,26,0.88); color: #fff; font-size: 14px; font-weight: 500;
@@ -89,42 +100,72 @@
   .toast.hide { animation: toastOut 0.3s ease forwards; }
   @keyframes toastIn { from { opacity:0; transform: translateX(-50%) translateY(8px); } to { opacity:1; transform: translateX(-50%) translateY(0); } }
   @keyframes toastOut { to { opacity:0; transform: translateX(-50%) translateY(8px); } }
+  /* 履歴 */
+  .history-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+  .history-clear { background: none; border: none; color: var(--sub); font-size: 13px; cursor: pointer; -webkit-tap-highlight-color: transparent; text-decoration: underline; }
+  .history-list { display: flex; flex-direction: column; gap: 8px; }
+  .history-item {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+    padding: 14px 16px; display: flex; align-items: center; gap: 12px; cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .history-item:active { background: var(--key-bg); }
+  .hi-room { font-size: 22px; font-weight: 700; font-variant-numeric: tabular-nums; min-width: 56px; }
+  .hi-loc { flex: 1; font-size: 14px; color: var(--sub); }
+  .hi-time { font-size: 11px; color: var(--border); }
+  .history-empty { text-align: center; padding: 48px 16px; color: var(--border); font-size: 14px; }
 </style>
 </head>
 <body>
 <header>
-  <h1>in the Park 荻窪 — ポスト位置</h1>
+  <div class="header-top"><h1>in the Park 荻窪 — ポスト位置</h1></div>
+  <div class="tabs">
+    <button class="tab-btn active" id="tab-search" onclick="switchTab('search')">検索</button>
+    <button class="tab-btn" id="tab-history" onclick="switchTab('history')">履歴</button>
+  </div>
 </header>
 <div class="main">
-  <div>
-    <span class="section-label">部屋番号</span>
-    <div class="number-display">
-      <span class="number-value empty" id="numDisplay">—</span>
-      <button class="clear-btn" onclick="clearNum()" aria-label="クリア">
-        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <line x1="4.5" y1="4.5" x2="13.5" y2="13.5" stroke="white" stroke-width="2" stroke-linecap="round"/>
-          <line x1="13.5" y1="4.5" x2="4.5" y2="13.5" stroke="white" stroke-width="2" stroke-linecap="round"/>
-        </svg>
-      </button>
+
+  <div class="tab-panel active" id="panel-search">
+    <div>
+      <span class="section-label">部屋番号</span>
+      <div class="number-display">
+        <span class="number-value empty" id="numDisplay">—</span>
+        <button class="clear-btn" onclick="clearNum()" aria-label="クリア">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <line x1="4.5" y1="4.5" x2="13.5" y2="13.5" stroke="white" stroke-width="2" stroke-linecap="round"/>
+            <line x1="13.5" y1="4.5" x2="4.5" y2="13.5" stroke="white" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      <div class="keypad">
+        <button class="key" onclick="pressKey('7')">7</button>
+        <button class="key" onclick="pressKey('8')">8</button>
+        <button class="key" onclick="pressKey('9')">9</button>
+        <button class="key" onclick="pressKey('4')">4</button>
+        <button class="key" onclick="pressKey('5')">5</button>
+        <button class="key" onclick="pressKey('6')">6</button>
+        <button class="key" onclick="pressKey('1')">1</button>
+        <button class="key" onclick="pressKey('2')">2</button>
+        <button class="key" onclick="pressKey('3')">3</button>
+        <button class="key key-empty"></button>
+        <button class="key" onclick="pressKey('0')">0</button>
+        <button class="key key-del" onclick="deleteKey()">⌫</button>
+      </div>
+      <button class="confirm-btn" onclick="confirmExact()">検索</button>
     </div>
   </div>
-  <div style="display:flex;flex-direction:column;gap:8px;">
-    <div class="keypad">
-      <button class="key" onclick="pressKey('7')">7</button>
-      <button class="key" onclick="pressKey('8')">8</button>
-      <button class="key" onclick="pressKey('9')">9</button>
-      <button class="key" onclick="pressKey('4')">4</button>
-      <button class="key" onclick="pressKey('5')">5</button>
-      <button class="key" onclick="pressKey('6')">6</button>
-      <button class="key" onclick="pressKey('1')">1</button>
-      <button class="key" onclick="pressKey('2')">2</button>
-      <button class="key" onclick="pressKey('3')">3</button>
-      <button class="key key-empty"></button>
-      <button class="key" onclick="pressKey('0')">0</button>
-      <button class="key key-del" onclick="deleteKey()">⌫</button>
+
+  <div class="tab-panel" id="panel-history">
+    <div class="history-head">
+      <span class="section-label" style="margin-bottom:0">検索履歴</span>
+      <button class="history-clear" id="historyClear" onclick="clearHistory()">すべて消去</button>
     </div>
-    <button class="confirm-btn" onclick="confirmExact()">検索</button>
-    </div>
+    <div class="history-list" id="historyList"></div>
+  </div>
+
 </div>
 <div class="modal-overlay hidden" id="modal" onclick="closeModal()">
   <div id="result" onclick="event.stopPropagation()"></div>
@@ -177,13 +218,13 @@ function drawMap(loc) {
   const W = 240, H = 295;
   const SP = 14;
   const xEntry = 30, yBot = 220;
-  const xLeftWall = xEntry + 4*SP;   // 74
-  const xMidWall  = xLeftWall + 3*SP; // 116
-  const xRightWall= xMidWall  + 4*SP; // 172
-  const yTop6 = yBot - 14*SP;          // 44
-  const yTop  = yBot - 13*SP;          // 58
-  const yTop3  = yTop6 + SP/2;          // 51
-  const yBot_h = yBot  + SP/2;          // 247
+  const xLeftWall = xEntry + 4*SP;
+  const xMidWall  = xLeftWall + 3*SP;
+  const xRightWall= xMidWall  + 4*SP;
+  const yTop6 = yBot - 14*SP;
+  const yTop  = yBot - 13*SP;
+  const yTop3  = yTop6 + SP/2;
+  const yBot_h = yBot  + SP/2;
   const segLines = [
     {x1:xEntry,      y1:yBot_h, x2:xLeftWall,  y2:yBot_h},
     {x1:xLeftWall,   y1:yBot,   x2:xLeftWall,  y2:yTop},
@@ -232,38 +273,88 @@ function drawMap(loc) {
     </svg>
   </div>`;
 }
+
+/* ===== 履歴 ===== */
+const HKEY = 'inzapark_post_history';
+function loadHistory(){
+  try { return JSON.parse(localStorage.getItem(HKEY) || '[]'); }
+  catch(e){ return []; }
+}
+function saveHistory(arr){
+  try { localStorage.setItem(HKEY, JSON.stringify(arr)); } catch(e){}
+}
+function addHistory(n){
+  let h = loadHistory();
+  h = h.filter(item => item.n !== n);   // 同じ番号は重複させず最新に
+  h.unshift({ n, t: Date.now() });
+  if (h.length > 100) h = h.slice(0, 100);
+  saveHistory(h);
+}
+function clearHistory(){
+  saveHistory([]);
+  renderHistory();
+}
+function fmtTime(ts){
+  const d = new Date(ts);
+  const now = new Date();
+  const sameDay = d.toDateString() === now.toDateString();
+  const hh = String(d.getHours()).padStart(2,'0');
+  const mm = String(d.getMinutes()).padStart(2,'0');
+  if (sameDay) return `今日 ${hh}:${mm}`;
+  return `${d.getMonth()+1}/${d.getDate()} ${hh}:${mm}`;
+}
+function renderHistory(){
+  const list = document.getElementById('historyList');
+  const clearBtn = document.getElementById('historyClear');
+  const h = loadHistory();
+  if (h.length === 0){
+    list.innerHTML = '<div class="history-empty">まだ履歴はありません</div>';
+    clearBtn.style.visibility = 'hidden';
+    return;
+  }
+  clearBtn.style.visibility = 'visible';
+  list.innerHTML = h.map(item => {
+    const loc = locate(String(item.n));
+    if (!loc) return '';
+    return `<div class="history-item" onclick="openFromHistory(${item.n})">
+      <span class="hi-room">${item.n}</span>
+      <span class="hi-loc">${loc.seg.label}・左${loc.within} 段${loc.row}</span>
+      <span class="hi-time">${fmtTime(item.t)}</span>
+    </div>`;
+  }).join('');
+}
+function openFromHistory(n){
+  const loc = locate(String(n));
+  if (loc) openModal(loc, false);
+}
+
+/* ===== タブ ===== */
+function switchTab(tab){
+  document.getElementById('tab-search').classList.toggle('active', tab==='search');
+  document.getElementById('tab-history').classList.toggle('active', tab==='history');
+  document.getElementById('panel-search').classList.toggle('active', tab==='search');
+  document.getElementById('panel-history').classList.toggle('active', tab==='history');
+  if (tab==='history') renderHistory();
+}
+
 let num = '';
 function pressKey(k){
   if(num.length>=4) return;
-  // すでに候補0なら、これ以上桁を伸ばさせない（888対策）。トーストも出し直さない。
   if(num.length>0 && getCandidates(num).length===0) return;
   num+=k; update();
 }
-function deleteKey(){
-  num=num.slice(0,-1);
-  hideToast();   // バックスペースでトースト即消し
-  update();
-}
-function clearNum(){
-  num='';
-  hideToast();   // クリアでもトースト即消し
-  update();
-}
+function deleteKey(){ num=num.slice(0,-1); hideToast(); update(); }
+function clearNum(){ num=''; hideToast(); update(); }
 function closeModal(){
   document.getElementById('modal').classList.add('hidden');
   document.body.style.overflow = '';
   clearNum();
 }
-function openModal(loc){
+function openModal(loc, record=true){
   document.getElementById('result').innerHTML = drawMap(loc);
   document.getElementById('modal').classList.remove('hidden');
   document.body.style.overflow = 'hidden';
-}
-function confirmExact(){
-  if (!num) return;
-  const loc = locate(num);
-  if (!loc){ showToast('該当する部屋番号はありません'); return; }
-  openModal(loc);
+  if (record) addHistory(loc.n);
 }
 let toastTimer;
 function showToast(msg){
@@ -283,7 +374,13 @@ function hideToast(){
 function getCandidates(prefix){
   return ALL.filter(n => String(n).startsWith(prefix));
 }
-let lastWasZero = false;   // 直前の入力で候補0だったか（トーストの二重発火防止）
+function confirmExact(){
+  if (!num) return;
+  const loc = locate(num);
+  if (!loc){ showToast('該当する部屋番号はありません'); return; }
+  openModal(loc);
+}
+let lastWasZero = false;
 function update(){
   const el = document.getElementById('numDisplay');
   const modal = document.getElementById('modal');
@@ -297,7 +394,7 @@ function update(){
   modal.classList.add('hidden');
   const candidates = getCandidates(num);
   if (candidates.length === 0){
-    if (!lastWasZero) showToast('該当する部屋番号はありません'); // 0になった瞬間だけ
+    if (!lastWasZero) showToast('該当する部屋番号はありません');
     lastWasZero = true;
   } else {
     lastWasZero = false;
