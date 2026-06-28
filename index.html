@@ -395,7 +395,7 @@ function renderList(){
       }
       rows += `<div class="list-row">${cells}</div>`;
     }
-    return `<div class="list-section"><span class="list-section-label">${seg.label}</span><div class="list-face">${rows}</div></div>`;
+    return `<div class="list-section"><span class="list-section-label">${seg.label}</span><div class="list-face"${si%2===1?' data-scrollable':''}>${rows}</div></div>`;
   }).join('');
 }
 function openListRoom(n){
@@ -433,7 +433,7 @@ function switchTab(tab){
     sx = e.touches[0].clientX;
     sy = e.touches[0].clientY;
     locked = null;
-    skip = !!e.target.closest('.list-face');
+    skip = !!e.target.closest('[data-scrollable]');
     slider.classList.add('no-transition');
   }, {passive:true});
 
