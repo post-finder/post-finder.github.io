@@ -121,13 +121,16 @@
     font-size: 13px; font-weight: 700; letter-spacing: 0.06em; color: var(--sub);
     margin-bottom: 8px; display: block;
   }
-  .list-grid { display: flex; flex-wrap: wrap; gap: 6px; }
+  .list-face { display: flex; flex-direction: column; gap: 4px; overflow-x: auto; }
+  .list-row { display: flex; gap: 4px; }
   .list-room {
-    background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
-    padding: 7px 10px; font-size: 14px; font-variant-numeric: tabular-nums;
+    background: var(--surface); border: 1px solid var(--border); border-radius: 6px;
+    padding: 6px 4px; font-size: 12px; font-variant-numeric: tabular-nums;
     cursor: pointer; -webkit-tap-highlight-color: transparent;
+    white-space: nowrap; text-align: center; min-width: 44px;
   }
   .list-room:active { background: var(--key-bg); }
+  .list-room-empty { min-width: 44px; }
 </style>
 </head>
 <body>
@@ -350,13 +353,31 @@ function openFromHistory(n){
 /* ===== 一覧 ===== */
 function renderList(){
   const content = document.getElementById('listContent');
+  // build lookup: segIdx -> row -> within -> room number
+  const grid = SEGS.map(() => []);
+  ALL.forEach(n => {
+    const loc = locate(String(n));
+    if (!loc) return;
+    if (!grid[loc.segIdx][loc.row]) grid[loc.segIdx][loc.row] = [];
+    grid[loc.segIdx][loc.row][loc.within] = n;
+  });
+  const numRows = 7;
   content.innerHTML = SEGS.map((seg, si) => {
-    const rooms = ALL.filter(n => locate(String(n))?.segIdx === si);
-    const sorted = rooms.slice().sort((a,b)=>a-b);
-    const chips = sorted.map(n =>
-      `<div class="list-room" onclick="openListRoom(${n})">${n}</div>`
-    ).join('');
-    return `<div class="list-section"><span class="list-section-label">${seg.label}</span><div class="list-grid">${chips}</div></div>`;
+    let rows = '';
+    for (let r = 1; r <= numRows; r++) {
+      const rowData = grid[si][r] || [];
+      let cells = '';
+      for (let w = 1; w <= seg.n; w++) {
+        const n = rowData[w];
+        if (n != null) {
+          cells += `<div class="list-room" onclick="openListRoom(${n})">${n}</div>`;
+        } else {
+          cells += `<div class="list-room-empty"></div>`;
+        }
+      }
+      rows += `<div class="list-row">${cells}</div>`;
+    }
+    return `<div class="list-section"><span class="list-section-label">${seg.label}</span><div class="list-face">${rows}</div></div>`;
   }).join('');
 }
 function openListRoom(n){
