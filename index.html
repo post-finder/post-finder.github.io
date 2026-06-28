@@ -122,9 +122,11 @@
     -webkit-tap-highlight-color: transparent;
   }
   .history-item:active { background: var(--key-bg); }
-  .hi-room { font-size: 22px; font-weight: 700; font-variant-numeric: tabular-nums; min-width: 56px; }
-  .hi-loc { flex: 1; font-size: 14px; color: var(--sub); }
-  .hi-time { font-size: 11px; color: var(--border); }
+  .hi-main { flex: 1; display: flex; flex-direction: column; gap: 1px; }
+  .hi-room { font-size: 16px; color: var(--sub); }
+  .hi-loc { font-size: 20px; font-weight: 700; color: var(--text); }
+  .hi-within { font-size: 14px; color: var(--sub); }
+  .hi-time { font-size: 11px; color: var(--border); flex-shrink: 0; }
   .history-empty { text-align: center; padding: 48px 16px; color: var(--border); font-size: 14px; }
   /* 一覧 */
   .list-section { margin-bottom: 24px; }
@@ -356,9 +358,13 @@ function renderHistory(){
   list.innerHTML = h.map(item => {
     const loc = locate(String(item.n));
     if (!loc) return '';
+    const rowLabel = loc.row===1?'最上段':loc.row===7?'最下段':loc.row===4?'上からも下からも4段目':loc.row<=3?`上から${loc.row}段目`:`下から${8-loc.row}段目`;
     return `<div class="history-item" onclick="openFromHistory(${item.n})">
-      <span class="hi-room">${item.n}</span>
-      <span class="hi-loc">${loc.seg.label}・左${loc.within} 段${loc.row}</span>
+      <div class="hi-main">
+        <span class="hi-room"><span style="color:var(--accent);font-weight:700;">${item.n}</span> 号室のポスト</span>
+        <span class="hi-loc">${loc.seg.label}</span>
+        <span class="hi-within">${rowLabel}</span>
+      </div>
       <span class="hi-time">${fmtTime(item.t)}</span>
     </div>`;
   }).join('');
