@@ -114,6 +114,20 @@
   .hi-loc { flex: 1; font-size: 14px; color: var(--sub); }
   .hi-time { font-size: 11px; color: var(--border); }
   .history-empty { text-align: center; padding: 48px 16px; color: var(--border); font-size: 14px; }
+  /* 一覧 */
+  #panel-list.active { justify-content: flex-start; }
+  .list-section { margin-bottom: 24px; }
+  .list-section-label {
+    font-size: 13px; font-weight: 700; letter-spacing: 0.06em; color: var(--sub);
+    margin-bottom: 8px; display: block;
+  }
+  .list-grid { display: flex; flex-wrap: wrap; gap: 6px; }
+  .list-room {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+    padding: 7px 10px; font-size: 14px; font-variant-numeric: tabular-nums;
+    cursor: pointer; -webkit-tap-highlight-color: transparent;
+  }
+  .list-room:active { background: var(--key-bg); }
 </style>
 </head>
 <body>
@@ -122,6 +136,7 @@
   <div class="tabs">
     <button class="tab-btn active" id="tab-search" onclick="switchTab('search')">検索</button>
     <button class="tab-btn" id="tab-history" onclick="switchTab('history')">履歴</button>
+    <button class="tab-btn" id="tab-list" onclick="switchTab('list')">一覧</button>
   </div>
 </header>
 <div class="main">
@@ -156,6 +171,10 @@
       </div>
       <button class="confirm-btn" onclick="confirmExact()">検索</button>
     </div>
+  </div>
+
+  <div class="tab-panel" id="panel-list">
+    <div id="listContent"></div>
   </div>
 
   <div class="tab-panel" id="panel-history">
@@ -328,13 +347,31 @@ function openFromHistory(n){
   if (loc) openModal(loc, false);
 }
 
+/* ===== 一覧 ===== */
+function renderList(){
+  const content = document.getElementById('listContent');
+  content.innerHTML = SEGS.map((seg, si) => {
+    const rooms = ALL.filter(n => locate(String(n))?.segIdx === si);
+    const sorted = rooms.slice().sort((a,b)=>a-b);
+    const chips = sorted.map(n =>
+      `<div class="list-room" onclick="openListRoom(${n})">${n}</div>`
+    ).join('');
+    return `<div class="list-section"><span class="list-section-label">${seg.label}</span><div class="list-grid">${chips}</div></div>`;
+  }).join('');
+}
+function openListRoom(n){
+  const loc = locate(String(n));
+  if (loc) openModal(loc);
+}
+
 /* ===== タブ ===== */
 function switchTab(tab){
-  document.getElementById('tab-search').classList.toggle('active', tab==='search');
-  document.getElementById('tab-history').classList.toggle('active', tab==='history');
-  document.getElementById('panel-search').classList.toggle('active', tab==='search');
-  document.getElementById('panel-history').classList.toggle('active', tab==='history');
+  ['search','history','list'].forEach(t => {
+    document.getElementById('tab-'+t).classList.toggle('active', tab===t);
+    document.getElementById('panel-'+t).classList.toggle('active', tab===t);
+  });
   if (tab==='history') renderHistory();
+  if (tab==='list') renderList();
 }
 
 let num = '';
