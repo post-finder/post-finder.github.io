@@ -386,14 +386,33 @@ function openListRoom(n){
 }
 
 /* ===== タブ ===== */
+const TABS = ['search','history','list'];
 function switchTab(tab){
-  ['search','history','list'].forEach(t => {
+  TABS.forEach(t => {
     document.getElementById('tab-'+t).classList.toggle('active', tab===t);
     document.getElementById('panel-'+t).classList.toggle('active', tab===t);
   });
   if (tab==='history') renderHistory();
   if (tab==='list') renderList();
 }
+
+/* ===== スワイプ ===== */
+(function(){
+  let sx=0, sy=0;
+  const main = document.querySelector('.main');
+  main.addEventListener('touchstart', e => {
+    sx = e.touches[0].clientX;
+    sy = e.touches[0].clientY;
+  }, {passive:true});
+  main.addEventListener('touchend', e => {
+    const dx = e.changedTouches[0].clientX - sx;
+    const dy = e.changedTouches[0].clientY - sy;
+    if (Math.abs(dx) < 40 || Math.abs(dx) < Math.abs(dy)*1.5) return;
+    const cur = TABS.findIndex(t => document.getElementById('panel-'+t).classList.contains('active'));
+    const next = cur + (dx < 0 ? 1 : -1);
+    if (next >= 0 && next < TABS.length) switchTab(TABS[next]);
+  }, {passive:true});
+})();
 
 let num = '';
 function pressKey(k){
