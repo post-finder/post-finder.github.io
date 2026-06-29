@@ -301,7 +301,7 @@ function drawMap(loc) {
   });
   return `
   <div class="map-wrap">
-    <div class="map-caption"><span class="cap-room"><span style="color:var(--accent);font-weight:700;">${loc.n}</span> 号室のポスト</span><br><span class="cap-loc">${loc.seg.label}</span><span class="cap-within">${loc.row===1?'最上段':loc.row===7?'最下段':loc.row===4?'上からも下からも4段目':loc.row<=3?`上から${loc.row}段目`:`下から${8-loc.row}段目`}</span></div>
+    <div class="map-caption"><span class="cap-room"><span style="color:var(--accent);font-weight:700;">${loc.n}</span> 号室のポスト</span><br><span class="cap-loc">${loc.seg.label}</span><span class="cap-within">${loc.row===1?'最上段':loc.row===7?'最下段':loc.row===4?'中央段':loc.row<=3?`上から${loc.row}段目`:`下から${8-loc.row}段目`}</span></div>
     <svg viewBox="0 0 ${W} ${H}">
       <line x1="192" y1="24"  x2="226" y2="24"  stroke="#ccc" stroke-width="2" stroke-linecap="round"/>
       <line x1="226" y1="24"  x2="226" y2="283" stroke="#ccc" stroke-width="2" stroke-linecap="round"/>
@@ -358,7 +358,7 @@ function renderHistory(){
   list.innerHTML = h.map(item => {
     const loc = locate(String(item.n));
     if (!loc) return '';
-    const rowLabel = loc.row===1?'最上段':loc.row===7?'最下段':loc.row===4?'上からも下からも4段目':loc.row<=3?`上から${loc.row}段目`:`下から${8-loc.row}段目`;
+    const rowLabel = loc.row===1?'最上段':loc.row===7?'最下段':loc.row===4?'中央段':loc.row<=3?`上から${loc.row}段目`:`下から${8-loc.row}段目`;
     return `<div class="history-item" onclick="openFromHistory(${item.n})">
       <div class="hi-main">
         <span class="hi-room"><span style="color:var(--accent);font-weight:700;">${item.n}</span> 号室のポスト</span>
